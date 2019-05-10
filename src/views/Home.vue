@@ -1,118 +1,141 @@
 <template>
   <div class="home">
-    <el-select
-        v-model="selectArrData"
-        multiple
-        collapse-tags
-        @remove-tag="selectTagChange"
-        style="margin-left: 20px;"
-        filterable
-        placeholder="请选择"> 
-        <el-option :value="selectArrData" >
-            <el-tree
-              :data="treeArrData"
-              show-checkbox
-              :check-strictly=false
-              default-expand-all
-              highlight-current
-              check-on-click-node   
-              node-key="id"
-              ref="tree"
-              highlight-current
-              :props="defaultProps"
-              @check-change="treeArrChooseData">
-            </el-tree>
-        </el-option>
+<!--    下拉框，必须是多选和标签化-->
+    <el-select v-model="selectValue" placeholder="请选择"
+               collapse-tags  multiple @remove-tag="selTagChange">
+      <el-option :value="selectValue">
+<!--        树状图，必须有ref属性和node-key属性-->
+        <el-tree
+                :data="treeData"
+                show-checkbox
+                default-expand-all
+                node-key="id"
+                ref="tree"
+                @check-change="treeOnChange"
+                highlight-current
+                :props="defaultProps">
+        </el-tree>
+
+      </el-option>
     </el-select>
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
+// import HelloWorld from '@/components/HelloWorld.vue'
 
 export default {
   name: 'home',
-  	data(){
-       return {
-
-       	treeArrData: [{
-	         id: 1,
-	         label: '一级 1',
-	         children: [{
-	           id: 4,
-	           label: '二级 14',
-	           children: [{
-	             id: 9,
-	             label: '三级 19'
-	           }, {
-	             id: 10,
-	             label: '三级 10'
-	           }]
-	         }]
-	       }, {
-	         id: 2,
-	         label: '一级 2',
-	         children: [{
-	           id: 5,
-	           label: '二级 25'
-	         }, {
-	           id: 6,
-	           label: '二级 26'
-	         }]
-	       }, {
-	         id: 3,
-	         label: '一级 3',
-	         children: [{
-	           id: 7,
-	           label: '二级 37'
-	         }, {
-	           id: 8,
-	           label: '二级 38'
-	         }]
-	       }],
-	       defaultProps: {
-	         children: 'children',
-	         label: 'label'
-	       },
-	       //下拉框中的数组
-	       selectArrData: [],
-	       //树状图中被选中的id:label的对象
-	       treeChooseObj:{},
-       }
-  	},
-  	methods:{
-  	  //树状图被点击的时候
-      treeArrChooseData(){
-      	this.treeChooseObj={}
-      	this.selectArrData=[];
-      	let oldArr=this.$refs.tree.getCheckedNodes()
-      	oldArr.map((value,index,arr)=>{
-
-      		// 如果输入框中只需要最后的子节点，那么将此处注释的的代码解开
-      		if(!value.children){
-      			this.treeChooseObj[value.id]=value.label
-      			this.selectArrData.push(value.label)
-      		}
-
-      	  })
-      },
-      //下拉框中的小标签删除事件
-      selectTagChange(val){
-        let newArr=[]
-        for(let i in this.treeChooseObj){
-            if(this.treeChooseObj[i]==val){
-                delete this.treeChooseObj[i]
-            }else{
-                newArr.push(i)
+  data(){
+    return{
+      // 树状图list
+      treeData: [
+        {
+          id: 1,
+          label: '一级 1',
+          children: [
+            {
+              id: 4,
+              label: '二级 1-1',
+              children: [
+                {
+                  id: 9,
+                  label: '三级 1-1-1'
+                },
+                {
+                  id: 10,
+                  label: '三级 1-1-2'
+                }
+              ]
             }
-	        this.$refs.tree.setCheckedKeys(newArr)
-	    };
-  	  },
-  	}
+          ]
+        },
+        {
+          id: 2,
+          label: '一级 2',
+          children: [
+            {
+              id: 5,
+              label: '二级 2-1'
+            },
+            {
+              id: 6,
+              label: '二级 2-2'
+            }
+          ]
+        },
+        {
+          id: 3,
+          label: '一级 3',
+          children: [
+            {
+              id: 7,
+              label: '二级 3-1'
+            },
+            {
+              id: 8,
+              label: '二级 3-2'
+            }
+          ]
+        }
+      ],
+      // 树状图的配置
+      defaultProps: {
+        children: 'children',
+        label: 'label',
+        value:"id"
+      },
+      // 下拉框中的list绑定值（Array)
+      selectValue:[]
+    }
+  },
+  methods:{
+    //树状图被选择时候调用函数（data:当前的被点击元素的对象，checked：是否被选中）
+    treeOnChange(data, checked){
+      // 过滤了非最下级子元素
+      if(!data.children){
+        // 此条被选中触发事件
+        if(checked){
+          this.selectValue.push(data.label)
+        }
+        // 被取消触发事件
+        else{
+          this.selectValue.map((value,index)=>{
+            if(value==data.label){
+              this.selectValue.splice(index,1)
+            }
+          })
+        }
+      }
+    },
+    // 下拉框中的tag标签被取消时候触发事件（val：被×标签label）
+    selTagChange(val){
+      // 设置树状图被选中的数组
+      this.$refs.tree.setCheckedKeys(
+        // 树状图去掉下拉框中被×掉的标签节点
+        (this.$refs.tree.getCheckedNodes()).map((value,index)=>{
+          if(!value.children){
+            if(value.label!=val){
+              return value.id
+            }
+          }
+        })
+      );
+    }
+  },
 }
 </script>
 <style>
-/*树状图高度撑起来,树状图鼠标移入背景颜色变成白色*/
-.el-select-dropdown__item, .el-select-dropdown__item{height:100%;}
-.el-select-dropdown__item.hover, .el-select-dropdown__item:hover{background:#fff;}
+  /*很重要的两条css样式属性，请重视，最好列为行内样式*/
+  .el-select-dropdown__item{
+    height:100%;
+    background:#fff;
+    padding:0;
+  }
+  .el-select-dropdown__item.hover,.el-select-dropdown__item:hover{
+    height:100%;
+    background:#fff;
+    padding:0;
+  }
 </style>
