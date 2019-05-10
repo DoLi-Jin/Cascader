@@ -1,3 +1,29 @@
-# --elementUI-multiple-selections-of-Cascader---element-
-使用elementUI的树状图（tree）和多选下拉框（select）模拟多选的级联选择器（ascader）（Simulate multiple selections of cascader using tree and multi-select）
-所有的配置项全部可以参考elementUI中的属性（https://element.eleme.cn/）
+# cascader
+
+## Project setup
+```
+npm install
+```
+
+### Compiles and hot-reloads for development
+```
+npm run serve
+```
+
+### Compiles and minifies for production
+```
+npm run build
+```
+
+### Run your tests
+```
+npm run test
+```
+
+### Lints and fixes files
+```
+npm run lint
+```
+
+### Customize configuration
+See [Configuration Reference](https://cli.vuejs.org/config/).
